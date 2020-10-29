@@ -1,15 +1,10 @@
 import * as React from "react";
 import Paper from "@material-ui/core/Paper";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import TableCell from "@material-ui/core/TableCell";
-import moment from 'moment';
-import {
-  darken,
-  fade,
-  lighten
-} from "@material-ui/core/styles/colorManipulator";
+import moment from "moment";
+import { fade } from "@material-ui/core/styles/colorManipulator";
+import TooltipHeader from "./TooltipHeader";
 import { ViewState, EditingState } from "@devexpress/dx-react-scheduler";
-import classNames from "clsx";
 import {
   Scheduler,
   MonthView,
@@ -23,227 +18,26 @@ import {
   AppointmentTooltip,
   TodayButton,
   EditRecurrenceMenu,
-  Resources,
-  DragDropProvider
+  Resources
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { withStyles } from "@material-ui/core/styles";
-import { owners } from "../demo-data/month-appointments"
-import { activities } from "../demo-data/month-appointments"
-const URL = 'http://localhost:3001/schedule';
+const URL = "http://localhost:3001/schedule";
 
 const makeQueryString = (currentDate, currentViewName) => {
-  const format = 'YYYY-MM-DDTHH:mm:ss';
+  const format = "YYYY-MM-DDTHH:mm:ss";
   const start = moment(currentDate).startOf(currentViewName.toLowerCase());
   const end = start.clone().endOf(currentViewName.toLowerCase());
-  console.log(encodeURI(`${URL}?filter=[["EndDate", ">", "${start.format(format)}"],["StartDate", "<", "${end.format(format)}"]]`))
-  return encodeURI(`${URL}?filter=[["EndDate", ">", "${start.format(format)}"],["StartDate", "<", "${end.format(format)}"]]`);
+    encodeURI(
+      `${URL}?filter=[["EndDate", ">", "${start.format(
+        format
+      )}"],["StartDate", "<", "${end.format(format)}"]]`
+  );
+  return encodeURI(
+    `${URL}?filter=[["EndDate", ">", "${start.format(
+      format
+    )}"],["StartDate", "<", "${end.format(format)}"]]`
+  );
 };
-
-const appointments = [
-  {
-    id: 0,
-    title: "Watercolor Landscape",
-    startDate: new Date(2018, 6, 23, 9, 30),
-    endDate: new Date(2018, 6, 23, 11, 30),
-    ownerId: 1
-  },
-  {
-    id: 1,
-    title: "Monthly Planning",
-    startDate: new Date(2018, 5, 28, 9, 30),
-    endDate: new Date(2018, 5, 28, 11, 30),
-    ownerId: 1
-  },
-  {
-    id: 2,
-    title: "Recruiting students",
-    startDate: new Date(2018, 6, 9, 12, 0),
-    endDate: new Date(2018, 6, 9, 13, 0),
-    ownerId: 2
-  },
-  {
-    id: 3,
-    title: "Oil Painting",
-    startDate: new Date(2018, 6, 18, 14, 30),
-    endDate: new Date(2018, 6, 18, 15, 30),
-    ownerId: 2
-  },
-  {
-    id: 4,
-    title: "Open Day",
-    startDate: new Date(2018, 6, 20, 12, 0),
-    endDate: new Date(2018, 6, 20, 13, 35),
-    ownerId: 6
-  },
-  {
-    id: 5,
-    title: "Watercolor Landscape",
-    startDate: new Date(2018, 6, 6, 13, 0),
-    endDate: new Date(2018, 6, 6, 14, 0),
-    rRule: "FREQ=WEEKLY;BYDAY=FR;UNTIL=20180816",
-    exDate: "20180713T100000Z,20180727T100000Z",
-    ownerId: 2
-  },
-  {
-    id: 6,
-    title: "Meeting of Instructors",
-    startDate: new Date(2018, 5, 28, 12, 0),
-    endDate: new Date(2018, 5, 28, 12, 30),
-    rRule: "FREQ=WEEKLY;BYDAY=TH;UNTIL=20180727",
-    exDate: "20180705T090000Z,20180719T090000Z",
-    ownerId: 5
-  },
-  {
-    id: 7,
-    title: "Oil Painting for Beginners",
-    startDate: new Date(2018, 6, 3, 11, 0),
-    endDate: new Date(2018, 6, 3, 12, 0),
-    rRule: "FREQ=WEEKLY;BYDAY=TU;UNTIL=20180801",
-    exDate: "20180710T080000Z,20180724T080000Z",
-    ownerId: 3
-  },
-  {
-    id: 8,
-    title: "Watercolor Workshop",
-    startDate: new Date(2018, 6, 9, 11, 0),
-    endDate: new Date(2018, 6, 9, 12, 0),
-    ownerId: 3
-  }
-];
-
-const resources = [
-  {
-    fieldName: "ownerId",
-    title: "Owners",
-    instances: owners
-  },
-  { fieldName: "activityType", title: "Activity", instances: activities }
-];
-
-const getBorder = (theme) =>
-  `1px solid ${
-    theme.palette.type === "light"
-      ? lighten(fade(theme.palette.divider, 1), 0.88)
-      : darken(fade(theme.palette.divider, 1), 0.68)
-  }`;
-
-const DayScaleCell = (props) => (
-  <MonthView.DayScaleCell
-    {...props}
-    style={{ textAlign: "center", fontWeight: "bold" }}
-  />
-);
-
-const styles = (theme) => ({
-  cell: {
-    color: "#78909C!important",
-    position: "relative",
-    userSelect: "none",
-    verticalAlign: "top",
-    padding: 0,
-    height: 100,
-    borderLeft: getBorder(theme),
-    "&:first-child": {
-      borderLeft: "none"
-    },
-    "&:last-child": {
-      paddingRight: 0
-    },
-    "tr:last-child &": {
-      borderBottom: "none"
-    },
-    "&:hover": {
-      backgroundColor: "white"
-    },
-    "&:focus": {
-      backgroundColor: fade(theme.palette.primary.main, 0.15),
-      outline: 0
-    }
-  },
-  content: {
-    display: "flex",
-    justifyContent: "center",
-    width: "100%",
-    height: "100%",
-    position: "absolute",
-    alignItems: "center"
-  },
-  text: {
-    padding: "0.5em",
-    textAlign: "center"
-  },
-
-  opacity: {
-    opacity: "0.5"
-  },
-  appointment: {
-    borderRadius: "10px",
-    "&:hover": {
-      opacity: 0.6
-    }
-  },
-  apptContent: {
-    "&>div>div": {
-      whiteSpace: "normal !important",
-      lineHeight: 1.2
-    }
-  },
-  flexibleSpace: {
-    flex: "none"
-  },
-  flexContainer: {
-    display: "flex",
-    alignItems: "center"
-  },
-  tooltipContent: {
-    padding: theme.spacing(3, 1),
-    paddingTop: 0,
-    backgroundColor: theme.palette.background.paper,
-    boxSizing: "border-box",
-    width: "400px"
-  },
-  tooltipText: {
-    ...theme.typography.body2,
-    display: "inline-block"
-  },
-  title: {
-    ...theme.typography.h6,
-    color: theme.palette.text.secondary,
-    fontWeight: theme.typography.fontWeightBold,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap"
-  },
-  icon: {
-    color: theme.palette.action.active,
-    verticalAlign: "middle"
-  },
-  circle: {
-    width: theme.spacing(4.5),
-    height: theme.spacing(4.5),
-    verticalAlign: "super"
-  },
-  textCenter: {
-    textAlign: "center"
-  },
-  dateAndTitle: {
-    lineHeight: 1.1
-  },
-  titleContainer: {
-    paddingBottom: theme.spacing(2)
-  },
-  container: {
-    paddingBottom: theme.spacing(1.5)
-  }
-});
-const ToolbarWithLoading = withStyles(styles, { name: "Toolbar" })(
-  ({ children, classes, ...restProps }) => (
-    <div className={classes.toolbarRoot}>
-      <Toolbar.Root {...restProps}>{children}</Toolbar.Root>
-      <LinearProgress className={classes.progress} />
-    </div>
-  )
-);
 const style = (theme) => ({
   todayCell: {
     backgroundColor: fade(theme.palette.primary.main, 0.1),
@@ -270,6 +64,14 @@ const style = (theme) => ({
     backgroundColor: fade(theme.palette.action.disabledBackground, 0.06)
   }
 });
+const ToolbarWithLoading = withStyles(style, { name: "Toolbar" })(
+  ({ children, classes, ...restProps }) => (
+    <div className={classes.toolbarRoot}>
+      <Toolbar.Root {...restProps}>{children}</Toolbar.Root>
+      <LinearProgress className={classes.progress} />
+    </div>
+  )
+);
 const TimeTableCellBase = ({ classes, ...restProps }) => {
   const { startDate } = restProps;
   const date = new Date(startDate);
@@ -285,80 +87,87 @@ const TimeTableCellBase = ({ classes, ...restProps }) => {
   }
   return <WeekView.TimeTableCell {...restProps} />;
 };
-const TimeTableCellToo = withStyles(style, { name: "TimeTableCell" })(
+
+const TimeTableCell = withStyles(style, { name: "TimeTableCell" })(
   TimeTableCellBase
 );
-// #FOLD_BLOCK
-const CellBase = React.memo(
-  ({
-    classes,
-    startDate,
-    formatDate,
-    otherMonth
-    // #FOLD_BLOCK
-  }) => {
-    const isFirstMonthDay = startDate.getDate() === 1;
-    const formatOptions = isFirstMonthDay
-      ? { day: "numeric", month: "long" }
-      : { day: "numeric" };
+
+const TimeTableCellBaseMonth = ({ classes, ...restProps }) => {
+  const { startDate } = restProps;
+  const date = new Date(startDate);
+  if (date.getDay() === 0 || date.getDay() === 6) {
     return (
-      <TableCell
-        tabIndex={0}
-        className={classNames({
-          [classes.cell]: true,
-          [classes.opacity]: otherMonth
-        })}
-      >
-        <div className={classes.text}>
-          {formatDate(startDate, formatOptions)}
-        </div>
-      </TableCell>
+      <MonthView.TimeTableCell {...restProps} className={classes.weekendCell} />
     );
   }
+  return <MonthView.TimeTableCell {...restProps} />;
+};
+const TimeTableCellMonth = withStyles(style, { name: "TimeTableCell" })(
+  TimeTableCellBaseMonth
+);
+const DayScaleCellBase = ({ classes, ...restProps }) => {
+  const { startDate, today } = restProps;
+  if (today) {
+    return <WeekView.DayScaleCell {...restProps} className={classes.today} />;
+  }
+  if (startDate.getDay() === 0 || startDate.getDay() === 6) {
+    return <WeekView.DayScaleCell {...restProps} className={classes.weekend} />;
+  }
+  return <WeekView.DayScaleCell {...restProps} />;
+};
+const DayScaleCell = withStyles(style, { name: "DayScaleCell" })(
+  DayScaleCellBase
 );
 
-const TimeTableCell = withStyles(styles, { name: "Cell" })(CellBase);
-const mapAppointmentData = appointment => ({
+const mapAppointmentData = (appointment) => ({
   ...appointment,
-  startDate: appointment.StartDate,
-  endDate: appointment.EndDate,
-  title: appointment.Text,
+  startDate: appointment.startdate,
+  endDate: appointment.enddate,
+  title: appointment.text,
+  rRule: appointment.recurrencerule,
+  id: appointment.appointmentId,
+  allDay: appointment.allday,
+  notes: appointment.description,
+  location: appointment.location
 });
-const Appointment = withStyles(styles, {
-  name: "Appointment"
-})(({ classes, ...restProps }) => (
-  <Appointments.Appointment {...restProps} className={classes.appointment} />
-));
-
-const AppointmentContent = withStyles(styles, {
-  name: "AppointmentContent"
-})(({ classes, ...restProps }) => (
-  <Appointments.AppointmentContent
-    {...restProps}
-    className={classes.apptContent}
-  />
-));
 function createAppt(stateItem) {
-  console.log('Posting appt to API...');
-  fetch('http://localhost:3001/schedule/change', {
-    method: 'post',
-    body: JSON.stringify(stateItem)
-  }).then(function(response) {
-    return response.json();
-  }).then(function(data) {
-    console.log('Created Appt:', data.Text);
-  });
+  console.log("Posting appt to API...");
+  fetch("http://localhost:3001/schedule/add", {
+    method: POST,
+    // body: JSON.stringify(stateItem)
+    body: stateItem
+  })
+    .then((response) => console.log(response))
+    .then((data) => {
+      console.log(data)
+    });
 }
-export default class Demo extends React.PureComponent {
 
+export default class Demo extends React.PureComponent {
   constructor(props) {
     super(props);
-
-   
     this.state = {
       loading: true,
-      currentDate: '2017-05-23',
-      currentViewName: 'Week',
+      currentDate: "2020-10-28",
+      currentViewName: "Week",
+      addedAppointment: {},
+      appointmentChanges: {},
+      editingAppointment: undefined,
+      data: this.props.data,
+      resources: [
+        {
+          fieldName: "text",
+          title: "Activity",
+          instances: [
+            { id: "Dog Fed", text: "Dog Fed" },
+            { id: "Vet Visit", text: "Vet Visit" },
+            { id: "Dog Walked", text: "Dog Walked" },
+            { id: "Dog Meds", text: "Dog Meds" },
+            { id: "Dog Groomed", text: "Dog Groomed" },
+            { id: "Dog Park", text: "Dog Park" }
+          ]
+        }
+      ]
     };
     this.commitChanges = this.commitChanges.bind(this);
     this.loadData = this.loadData.bind(this);
@@ -368,17 +177,30 @@ export default class Demo extends React.PureComponent {
     this.currentDateChange = (currentDate) => {
       this.setState({ currentDate, loading: true });
     };
-    
+    this.changeAddedAppointment = this.changeAddedAppointment.bind(this);
+    this.changeAppointmentChanges = this.changeAppointmentChanges.bind(this);
+    this.changeEditingAppointment = this.changeEditingAppointment.bind(this);
   }
 
+  changeAddedAppointment(addedAppointment) {
+    this.setState({ addedAppointment });
+  }
+
+  changeAppointmentChanges(appointmentChanges) {
+    this.setState({ appointmentChanges });
+  }
+
+  changeEditingAppointment(editingAppointment) {
+    this.setState({ editingAppointment });
+  }
   componentDidMount() {
     this.loadData();
   }
-
   componentDidUpdate() {
     this.loadData();
+    
+    
   }
-
   loadData() {
     const { currentDate, currentViewName } = this.state;
     const queryString = makeQueryString(currentDate, currentViewName);
@@ -387,33 +209,34 @@ export default class Demo extends React.PureComponent {
       return;
     }
     fetch(URL)
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
         setTimeout(() => {
           this.setState({
             data,
-            loading: false,
+            loading: false
           });
         }, 600);
       })
       .catch(() => this.setState({ loading: false }));
     this.lastQuery = queryString;
   }
-  
-
   commitChanges({ added, changed, deleted }) {
     this.setState((state) => {
       let { data } = state;
       if (added) {
+        console.log(this.state.data[this.state.data.length - 1])
         const startingAddedId =
-          data.length > 0 ? data[data.length - 1].id + 1 : 0;
-        data = [...data, { id: startingAddedId, ...added }];
+        data[data.length - 1].appointmentId + 1
+        data = [...data, { appointmentId: startingAddedId, ...added }];
+    createAppt(data[data.length-1])
+    console.log(data[data.length-1])
       }
       if (changed) {
         data = data.map((appointment) =>
           changed[appointment.id]
-            ? createAppt({ ...appointment, ...changed[appointment.id] })
+            ? { ...appointment, ...changed[appointment.id] }
             : appointment
         );
       }
@@ -423,36 +246,48 @@ export default class Demo extends React.PureComponent {
       return { data };
     });
   }
-
   render() {
-    const { data, loading, currentDate, currentViewName } = this.state;
-    const formattedData = data
-      ? data.map(mapAppointmentData) : [];
+    const {
+      currentDate,
+      data,
+      addedAppointment,
+      appointmentChanges,
+      editingAppointment,
+      loading,
+      currentViewName,
+      resources
+    } = this.state;
+    const formattedData = data ? data.map(mapAppointmentData) : [];
     return (
       <Paper>
-        <Scheduler data={formattedData}>
-          <EditingState onCommitChanges={this.commitChanges} />
+        <Scheduler data={formattedData} height={680}>
           <ViewState
             currentDate={currentDate}
             currentViewName={currentViewName}
             onCurrentViewNameChange={this.currentViewNameChange}
             onCurrentDateChange={this.currentDateChange}
           />
-          <DayView startDayHour={5} endDayHour={21} />
-          <WeekView
-            startDayHour={9}
-            endDayHour={18}
-
+          <EditingState
+            onCommitChanges={this.commitChanges}
+            addedAppointment={addedAppointment}
+            onAddedAppointmentChange={this.changeAddedAppointment}
+            appointmentChanges={appointmentChanges}
+            onAppointmentChangesChange={this.changeAppointmentChanges}
+            editingAppointment={editingAppointment}
+            onEditingAppointmentChange={this.changeEditingAppointment}
           />
-          <MonthView
+          <EditRecurrenceMenu />
+          <DayView startDayHour={5} endDayHour={23} cellDuration={60} />
+          <WeekView
+            startDayHour={5}
+            endDayHour={23}
             timeTableCellComponent={TimeTableCell}
             dayScaleCellComponent={DayScaleCell}
+            cellDuration={60}
           />
+          <MonthView timeTableCellComponent={TimeTableCellMonth} />
 
-          <Appointments
-            appointmentComponent={Appointment}
-            appointmentContentComponent={AppointmentContent}
-          />
+          <Appointments />
           <Resources data={resources} />
           <Toolbar
             {...(loading ? { rootComponent: ToolbarWithLoading } : null)}
@@ -461,10 +296,13 @@ export default class Demo extends React.PureComponent {
           <TodayButton />
           <ViewSwitcher />
 
-          <EditRecurrenceMenu />
-          <AppointmentTooltip showCloseButton showDeleteButton showOpenButton />
+          <AppointmentTooltip
+            headerComponent={TooltipHeader}
+            showCloseButton
+            showDeleteButton
+            showOpenButton
+          />
           <AppointmentForm />
-          <DragDropProvider />
         </Scheduler>
       </Paper>
     );

@@ -1,7 +1,7 @@
 const db = require("./conn");
 
 class AppointmentsList {
-  constructor(AppointmentId, Description, EndDate, StartDate, Text, RecurrenceRule, AllDay) {
+  constructor(AppointmentId, Description, EndDate, StartDate, Text, RecurrenceRule, AllDay, Location) {
     this.AppointmentId = AppointmentId;
     this.Description = Description;
     this.EndDate = EndDate;
@@ -9,6 +9,7 @@ class AppointmentsList {
     this.Text = Text;
     this.RecurrenceRule = RecurrenceRule;
     this.AllDay = AllDay;
+    this.Location = Location;
   }
   static async showAllAppts() {
     try {
@@ -20,6 +21,18 @@ class AppointmentsList {
       console.error("ERROR: ", error.message);
       return error.message;
     }
+  }
+  static async addAppt(Activity, newStartDate, newEndDate, Location, Description){
+      try {
+        const response = await db.result(
+          `INSERT INTO appointments (Text, StartDate, EndDate, Location, Description) VALUES ($1, $2, $3, $4, $5);`,
+          [Activity, newStartDate, newEndDate, Location, Description]
+        );
+        return response;
+      } catch (error) {
+        console.error("ERROR: ", error.message);
+        return error.message;
+      }
   }
 }
 module.exports = AppointmentsList;

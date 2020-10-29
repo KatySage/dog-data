@@ -1,8 +1,7 @@
+
 import * as React from "react";
-import {
-  AppointmentForm,
-} from "@devexpress/dx-react-scheduler-material-ui";
-import { connectProps } from "@devexpress/dx-react-core";
+import PetsIcon from '@material-ui/icons/Pets';
+import MenuItem from '@material-ui/core/MenuItem';
 import {
   KeyboardDateTimePicker,
   MuiPickersUtilsProvider
@@ -10,13 +9,11 @@ import {
 import MomentUtils from "@date-io/moment";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
 import TextField from "@material-ui/core/TextField";
 import LocationOn from "@material-ui/icons/LocationOn";
 import Notes from "@material-ui/icons/Notes";
-import Close from "@material-ui/icons/Close";
 import CalendarToday from "@material-ui/icons/CalendarToday";
-import Create from "@material-ui/icons/Create";
+
 
 const containerStyles = (theme) => ({
   container: {
@@ -116,12 +113,7 @@ class AppointmentFormContainerBasic extends React.PureComponent {
   render() {
     const {
       classes,
-      visible,
-      visibleChange,
       appointmentData,
-      cancelAppointment,
-      target,
-      onHide
     } = this.props;
     const { appointmentChanges } = this.state;
 
@@ -129,14 +121,9 @@ class AppointmentFormContainerBasic extends React.PureComponent {
       ...appointmentData,
       ...appointmentChanges
     };
-
-    const isNewAppointment = appointmentData.id === undefined;
-    const applyChanges = isNewAppointment
-      ? () => this.commitAppointment("added")
-      : () => this.commitAppointment("changed");
-
     const textEditorProps = (field) => ({
       variant: "outlined",
+      name: {field},
       onChange: ({ target: change }) =>
         this.changeAppointment({
           field: [field],
@@ -149,7 +136,6 @@ class AppointmentFormContainerBasic extends React.PureComponent {
 
     const pickerEditorProps = (field) => ({
       className: classes.picker,
-      // keyboard: true,
       ampm: false,
       value: displayAppointmentData[field],
       onChange: (date) =>
@@ -160,28 +146,25 @@ class AppointmentFormContainerBasic extends React.PureComponent {
             : new Date(displayAppointmentData[field])
         }),
       inputVariant: "outlined",
-      format: "DD/MM/YYYY HH:mm",
+      format: "MM/DD/YYYY HH:mm",
       onError: () => null
     });
-
-    const cancelChanges = () => {
-      this.setState({
-        appointmentChanges: {}
-      });
-    };
-
     return (
+      <>
         <form action={`http://localhost:3001/schedule/add`} method='POST'>
-            <input hidden name="dog_id" value='woof' />
-          <div className={classes.header}>
-            <IconButton className={classes.closeButton} onClick={cancelChanges}>
-              <Close color="action" />
-            </IconButton>
-          </div>
           <div className={classes.content}>
             <div className={classes.wrapper}>
-              <Create className={classes.icon} color="action" />
-              <TextField {...textEditorProps("title")} />
+              <PetsIcon className={classes.icon} color="action" />
+              <TextField {...textEditorProps("Activity")} 
+              name="Activity" required select>
+          <MenuItem value="" disabled>Activity</MenuItem>
+          <MenuItem value={'Vet Visit'}>Vet Visit</MenuItem>
+          <MenuItem value={'Dog Walked'}>Dog Walked</MenuItem>
+          <MenuItem value={'Dog Park'}>Dog Park</MenuItem>
+          <MenuItem value={'Dog Fed'}>Dog Fed</MenuItem>
+          <MenuItem value={'Dog Meds'}>Dog Meds</MenuItem>
+          <MenuItem value={'Dog Groomed'}>Dog Groomed</MenuItem>
+          </TextField>
             </div>
             <div className={classes.wrapper}>
               <CalendarToday className={classes.icon} color="action" />
@@ -189,36 +172,30 @@ class AppointmentFormContainerBasic extends React.PureComponent {
                 <KeyboardDateTimePicker
                   label="Start Date"
                   {...pickerEditorProps("startDate")}
+                  name="StartDate"
                 />
                 <KeyboardDateTimePicker
                   label="End Date"
                   {...pickerEditorProps("endDate")}
+                  name="EndDate"
                 />
               </MuiPickersUtilsProvider>
             </div>
             <div className={classes.wrapper}>
               <LocationOn className={classes.icon} color="action" />
-              <TextField {...textEditorProps("location")} />
+              <TextField {...textEditorProps("location")} 
+              name="Location" />
             </div>
             <div className={classes.wrapper}>
               <Notes className={classes.icon} color="action" />
-              <TextField {...textEditorProps("notes")} multiline rows="6" />
+              <TextField {...textEditorProps("notes")} 
+              name="Description"
+              multiline rows="6" />
             </div>
+
+            
           </div>
           <div className={classes.buttonGroup}>
-            {!isNewAppointment && (
-              <Button
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-                onClick={() => {
-                  visibleChange();
-                  this.commitAppointment("deleted");
-                }}
-              >
-                Delete
-              </Button>
-            )}
             <Button
               variant="outlined"
               color="primary"
@@ -227,10 +204,11 @@ class AppointmentFormContainerBasic extends React.PureComponent {
               onClick={() => {
               }}
             >
-              {isNewAppointment ? "Create" : "Save"}
+              Create
             </Button>
           </div>
         </form>
+        </>
     );
   }
 }
