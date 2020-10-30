@@ -133,8 +133,7 @@ const mapAppointmentData = (appointment) => ({
 function createAppt(stateItem) {
   console.log("Posting appt to API...");
   fetch("http://localhost:3001/schedule/add", {
-    method: POST,
-    // body: JSON.stringify(stateItem)
+    method: 'POST',
     body: stateItem
   })
     .then((response) => console.log(response))
@@ -183,9 +182,12 @@ export default class Demo extends React.PureComponent {
   }
 
   changeAddedAppointment(addedAppointment) {
+    // const format = "YYYY-MM-DDTHH:mm:ss";
+    //     addedAppointment.startDate = (moment(addedAppointment.startDate).format(format))
+    //     addedAppointment.endDate = (moment(addedAppointment.startDate).format(format))
     this.setState({ addedAppointment });
   }
-
+<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
   changeAppointmentChanges(appointmentChanges) {
     this.setState({ appointmentChanges });
   }
@@ -230,6 +232,7 @@ export default class Demo extends React.PureComponent {
         const startingAddedId =
         data[data.length - 1].appointmentId + 1
         data = [...data, { appointmentId: startingAddedId, ...added }];
+    // createAppt(data[data.length-1])
     createAppt(data[data.length-1])
     console.log(data[data.length-1])
       }
@@ -302,7 +305,8 @@ export default class Demo extends React.PureComponent {
             showDeleteButton
             showOpenButton
           />
-          <AppointmentForm />
+          <AppointmentForm
+          />
         </Scheduler>
       </Paper>
     );
