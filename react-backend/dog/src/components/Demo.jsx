@@ -134,10 +134,11 @@ function createAppt(stateItem) {
   console.log("state", JSON.stringify(stateItem));
   fetch("http://localhost:3001/schedule/add", {
     method: 'POST',
-    body: JSON.stringify(stateItem),
+    mode: 'no-cors',
+    credentials: 'same-origin', 
     headers: {
       'Content-Type': 'application/json'
-},
+    },
   })
     .then((response) => response.json)
     .then((data) => {
