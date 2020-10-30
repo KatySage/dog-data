@@ -131,14 +131,17 @@ const mapAppointmentData = (appointment) => ({
   location: appointment.location
 });
 function createAppt(stateItem) {
-  console.log("Posting appt to API...");
+  console.log("state", JSON.stringify(stateItem));
   fetch("http://localhost:3001/schedule/add", {
     method: 'POST',
-    body: stateItem
+    body: JSON.stringify(stateItem),
+    headers: {
+      'Content-Type': 'application/json'
+},
   })
-    .then((response) => console.log(response))
+    .then((response) => response.json)
     .then((data) => {
-      console.log(data)
+      console.log('data:', data)
     });
 }
 
@@ -182,9 +185,9 @@ export default class Demo extends React.PureComponent {
   }
 
   changeAddedAppointment(addedAppointment) {
-    // const format = "YYYY-MM-DDTHH:mm:ss";
-    //     addedAppointment.startDate = (moment(addedAppointment.startDate).format(format))
-    //     addedAppointment.endDate = (moment(addedAppointment.startDate).format(format))
+    const format = "YYYY-MM-DDTHH:mm:ss";
+        addedAppointment.startDate = (moment(addedAppointment.startDate).format(format))
+        addedAppointment.endDate = (moment(addedAppointment.startDate).format(format))
     this.setState({ addedAppointment });
   }
 
